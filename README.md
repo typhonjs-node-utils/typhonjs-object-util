@@ -1,4 +1,4 @@
-![typhonjs-object-util](https://i.imgur.com/dYq1wIX.png)
+![typhonjs-object-util](https://i.imgur.com/Vf2ugzy.png)
 
 [![NPM](https://img.shields.io/npm/v/typhonjs-object-util.svg?label=npm)](https://www.npmjs.com/package/typhonjs-object-util)
 [![Documentation](http://docs.typhonjs.io/typhonjs-node-utils/typhonjs-object-util/badge.svg)](http://docs.typhonjs.io/typhonjs-node-utils/typhonjs-object-util/)
