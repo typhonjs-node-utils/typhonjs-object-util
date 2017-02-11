@@ -491,8 +491,8 @@ export default class ObjectUtil
  * `typhonjs:object:util:validate:array`: Invokes `validateArray`.
  * `typhonjs:object:util:validate:entry`: Invokes `validateEntry`.
  *
- * getAccessorList
  * @param {PluginEvent} ev - The plugin event.
+ * @ignore
  */
 export function onPluginLoad(ev)
 {
