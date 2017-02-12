@@ -195,7 +195,10 @@ describe('ObjectUtil:', () =>
              { a: { required: false, test: 'entry', type: 'string' } }));
 
             assert.throws(() => ObjectUtil.validate(s_OBJECT_MIXED,
-             { a: { required: false, test: 'entry', expected: new Set('a') } }));
+             { a: { required: false, test: 'entry', expected: new Set(['a']) } }));
+
+            assert.throws(() => ObjectUtil.validate(s_OBJECT_MIXED,
+             { a: { required: false, test: 'entry', expected: ['a'] } }));
 
             assert.throws(() => ObjectUtil.validate(s_OBJECT_MIXED,
              { a: { required: false, test: 'entry', expected: (v) => v === 2 } }));
@@ -210,7 +213,10 @@ describe('ObjectUtil:', () =>
              { a: { required: false, test: 'entry|array', type: 'string' } }));
 
             assert.throws(() => ObjectUtil.validate(s_OBJECT_MIXED,
-             { a: { required: false, test: 'entry|array', expected: new Set('a') } }));
+             { a: { required: false, test: 'entry|array', expected: new Set(['a']) } }));
+
+            assert.throws(() => ObjectUtil.validate(s_OBJECT_MIXED,
+             { a: { required: false, test: 'entry|array', expected: ['a'] } }));
 
             assert.throws(() => ObjectUtil.validate(s_OBJECT_MIXED,
              { a: { required: false, test: 'entry|array', expected: (v) => v === 2 } }));
@@ -223,6 +229,9 @@ describe('ObjectUtil:', () =>
 
             assert.throws(() => ObjectUtil.validate(s_OBJECT_MIXED,
              { array: { required: false, test: 'entry|array', expected: new Set([10]) } }));
+
+            assert.throws(() => ObjectUtil.validate(s_OBJECT_MIXED,
+             { array: { required: false, test: 'entry|array', expected: [10] } }));
 
             assert.throws(() => ObjectUtil.validate(s_OBJECT_MIXED,
              { array: { required: false, test: 'entry|array', expected: (v) => (typeof v === 'number') } }));
@@ -240,7 +249,10 @@ describe('ObjectUtil:', () =>
              { a: { required: false, test: 'entry', type: 'string', error: false } }));
 
             assert.isFalse(ObjectUtil.validate(s_OBJECT_MIXED,
-             { a: { required: false, test: 'entry', expected: new Set('a'), error: false } }));
+             { a: { required: false, test: 'entry', expected: new Set(['a']), error: false } }));
+
+            assert.isFalse(ObjectUtil.validate(s_OBJECT_MIXED,
+             { a: { required: false, test: 'entry', expected: ['a'], error: false } }));
 
             assert.isFalse(ObjectUtil.validate(s_OBJECT_MIXED,
              { a: { required: false, test: 'entry', expected: (v) => v === 2, error: false } }));
@@ -255,7 +267,10 @@ describe('ObjectUtil:', () =>
              { a: { required: false, test: 'entry|array', type: 'string', error: false } }));
 
             assert.isFalse(ObjectUtil.validate(s_OBJECT_MIXED,
-             { a: { required: false, test: 'entry|array', expected: new Set('a'), error: false } }));
+             { a: { required: false, test: 'entry|array', expected: new Set(['a']), error: false } }));
+
+            assert.isFalse(ObjectUtil.validate(s_OBJECT_MIXED,
+             { a: { required: false, test: 'entry|array', expected: ['a'], error: false } }));
 
             assert.isFalse(ObjectUtil.validate(s_OBJECT_MIXED,
              { a: { required: false, test: 'entry|array', expected: (v) => v === 2, error: false } }));
@@ -268,6 +283,9 @@ describe('ObjectUtil:', () =>
 
             assert.isFalse(ObjectUtil.validate(s_OBJECT_MIXED,
              { array: { required: false, test: 'entry|array', expected: new Set([10]), error: false } }));
+
+            assert.isFalse(ObjectUtil.validate(s_OBJECT_MIXED,
+             { array: { required: false, test: 'entry|array', expected: [10], error: false } }));
 
             assert.isFalse(ObjectUtil.validate(s_OBJECT_MIXED,
              { array: { required: false, test: 'entry|array', expected: (v) => (typeof v === 'number'),
@@ -317,6 +335,9 @@ describe('ObjectUtil:', () =>
 
             assert.isTrue(ObjectUtil.validate(s_OBJECT_MIXED,
              { a: { required: false, test: 'entry', expected: new Set([1, 2]), error: false } }));
+
+            assert.isTrue(ObjectUtil.validate(s_OBJECT_MIXED,
+             { a: { required: false, test: 'entry', expected: [1, 2], error: false } }));
 
             assert.isTrue(ObjectUtil.validate(s_OBJECT_MIXED,
              { a: { required: false, test: 'entry', expected: (v) => v === 1, error: false } }));

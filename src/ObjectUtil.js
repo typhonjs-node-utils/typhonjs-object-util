@@ -304,7 +304,25 @@ export default class ObjectUtil
       // If expected is a function then test all array entries against the test function. If expected is a Set then
       // test all array entries for inclusion in the set. Otherwise if expected is a string then test that all array
       // entries as a `typeof` test against expected.
-      if (expected instanceof Set)
+      if (Array.isArray(expected))
+      {
+         for (let cntr = 0; cntr < dataArray.length; cntr++)
+         {
+            if (expected.indexOf(dataArray[cntr]) < 0)
+            {
+               if (error)
+               {
+                  throw new Error(`'${dataName}.${accessor}[${cntr}]': '${
+                   dataArray[cntr]}' is not an expected value: ${JSON.stringify(expected)}.`);
+               }
+               else
+               {
+                  return false;
+               }
+            }
+         }
+      }
+      else if (expected instanceof Set)
       {
          for (let cntr = 0; cntr < dataArray.length; cntr++)
          {
@@ -330,17 +348,7 @@ export default class ObjectUtil
             {
                const result = expected(dataArray[cntr]);
 
-               if (typeof result === 'undefined' || !result)
-               {
-                  if (error)
-                  {
-                     throw new Error(message);
-                  }
-                  else
-                  {
-                     return false;
-                  }
-               }
+               if (typeof result === 'undefined' || !result) { throw new Error(message); }
             }
             catch (err)
             {
@@ -400,7 +408,8 @@ export default class ObjectUtil
          }
       }
 
-      if (expected instanceof Set && !expected.has(dataEntry))
+      if ((expected instanceof Set && !expected.has(dataEntry)) ||
+       (Array.isArray(expected) && expected.indexOf(dataEntry) < 0))
       {
          if (error)
          {
@@ -418,17 +427,7 @@ export default class ObjectUtil
          {
             const result = expected(dataEntry);
 
-            if (typeof result === 'undefined' || !result)
-            {
-               if (error)
-               {
-                  throw new Error(message);
-               }
-               else
-               {
-                  return false;
-               }
-            }
+            if (typeof result === 'undefined' || !result) { throw new Error(message); }
          }
          catch (err)
          {
