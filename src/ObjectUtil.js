@@ -117,8 +117,8 @@ export default class ObjectUtil
     *
     * @param {*}        value - A new value to set if an entry for accessor is found.
     *
-    * @param {string}   operation - (Optional) Operation to perform including: 'add', 'div', 'mult', 'set', 'sub';
-    *                               default (`set`).
+    * @param {string}   [operation='set'] - Operation to perform including: 'add', 'div', 'mult', 'set', 'sub';
+    *                                       default (`set`).
     *
     * @returns {boolean} True if successful.
     */
@@ -183,9 +183,9 @@ export default class ObjectUtil
    /**
     * Performs bulk setting of values to the given data object.
     *
-    * @param {object}                  data - The data object to set data.
+    * @param {object}            data - The data object to set data.
     *
-    * @param {{key: string, value: *}} accessorValues - Object of accessor keys to values to set.
+    * @param {object<string, *>} accessorValues - Object of accessor keys to values to set.
     */
    static safeSetAll(data, accessorValues)
    {
@@ -203,11 +203,11 @@ export default class ObjectUtil
    /**
     * Performs bulk validation of data given an object, `validationData`, which describes all entries to test.
     *
-    * @param {object}   data - The data object to test.
+    * @param {object}                           data - The data object to test.
     *
-    * @param {object}   validationData - Key is the accessor / value is a validation entry.
+    * @param {object<string, ValidationEntry>}  validationData - Key is the accessor / value is a validation entry.
     *
-    * @param {string}   [dataName='data'] - Optional name of data.
+    * @param {string}                           [dataName='data'] - Optional name of data.
     *
     * @returns {boolean} True if validation passes otherwise an exception is thrown.
     */
@@ -258,6 +258,8 @@ export default class ObjectUtil
    // * @param {string}            [message] - Optional message to include.
    // *
    // * @param {boolean}           [required] - When false if the accessor is missing validation is skipped.
+   // *
+   // * @param {boolean}           [error=true] - When true and error is thrown otherwise a boolean is returned.
    // *
    // * @param {string}            [dataName='data'] - Optional name of data.
    // *
@@ -395,7 +397,9 @@ export default class ObjectUtil
    // *
    // * @param {string}            [message] - Optional message to include.
    // *
-   // * @param {boolean}           [required] - When false if the accessor is missing validation is skipped.
+   // * @param {boolean}           [required=true] - When false if the accessor is missing validation is skipped.
+   // *
+   // * @param {boolean}           [error=true] - When true and error is thrown otherwise a boolean is returned.
    // *
    // * @param {string}            [dataName='data'] - Optional name of data.
    // *
@@ -470,7 +474,7 @@ export default class ObjectUtil
     *
     * @param {string}            accessor - A string describing the entries to access.
     *
-    * @param {object}            [entry] - A validation entry.
+    * @param {ValidationEntry}   [entry] - A validation entry.
     *
     * @param {string}            [dataName='data'] - Optional name of data.
     *
