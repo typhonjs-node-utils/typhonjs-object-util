@@ -1,3 +1,6 @@
+## 0.3.2 (2017-14-02)
+- Added more documentation.
+
 ## 0.3.1 (2017-14-02)
 - Added JSON.stringify for objects in validation error messages.
 
