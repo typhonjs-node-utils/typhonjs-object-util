@@ -275,7 +275,7 @@ export default class ObjectUtil
       {
          if (error)
          {
-            throw new TypeError(`'${dataName}.${accessor}' is not an 'array'.`);
+            throw _validateError(TypeError, `'${dataName}.${accessor}' is not an 'array'.`);
          }
          else
          {
@@ -291,7 +291,8 @@ export default class ObjectUtil
             {
                if (error)
                {
-                  throw new Error(`'${dataName}.${accessor}[${cntr}]': '${dataArray[cntr]}' is not a '${type}'.`);
+                  throw _validateError(TypeError,
+                   `'${dataName}.${accessor}[${cntr}]': '${dataArray[cntr]}' is not a '${type}'.`);
                }
                else
                {
@@ -312,7 +313,7 @@ export default class ObjectUtil
             {
                if (error)
                {
-                  throw new Error(`'${dataName}.${accessor}[${cntr}]': '${
+                  throw _validateError(Error, `'${dataName}.${accessor}[${cntr}]': '${
                    dataArray[cntr]}' is not an expected value: ${JSON.stringify(expected)}.`);
                }
                else
@@ -330,7 +331,7 @@ export default class ObjectUtil
             {
                if (error)
                {
-                  throw new Error(`'${dataName}.${accessor}[${cntr}]': '${
+                  throw _validateError(Error, `'${dataName}.${accessor}[${cntr}]': '${
                    dataArray[cntr]}' is not an expected value: ${JSON.stringify(expected)}.`);
                }
                else
@@ -348,14 +349,14 @@ export default class ObjectUtil
             {
                const result = expected(dataArray[cntr]);
 
-               if (typeof result === 'undefined' || !result) { throw new Error(message); }
+               if (typeof result === 'undefined' || !result) { throw _validateError(Error, message); }
             }
             catch (err)
             {
                if (error)
                {
-                  throw new Error(`'${dataName}.${accessor}[${cntr}]': '${dataArray[cntr]}' failed validation: ${
-                   err.message}.`);
+                  throw _validateError(Error, `'${dataName}.${accessor}[${cntr}]': '${
+                   dataArray[cntr]}' failed validation: ${err.message}.`);
                }
                else
                {
@@ -400,7 +401,7 @@ export default class ObjectUtil
       {
          if (error)
          {
-            throw new TypeError(`'${dataName}.${accessor}' is not a '${type}'.`);
+            throw _validateError(TypeError, `'${dataName}.${accessor}' is not a '${type}'.`);
          }
          else
          {
@@ -413,7 +414,7 @@ export default class ObjectUtil
       {
          if (error)
          {
-            throw new Error(`'${dataName}.${accessor}': '${dataEntry}' is not an expected value: ${
+            throw _validateError(Error, `'${dataName}.${accessor}': '${dataEntry}' is not an expected value: ${
              JSON.stringify(expected)}.`);
          }
          else
@@ -427,13 +428,14 @@ export default class ObjectUtil
          {
             const result = expected(dataEntry);
 
-            if (typeof result === 'undefined' || !result) { throw new Error(message); }
+            if (typeof result === 'undefined' || !result) { throw _validateError(Error, message); }
          }
          catch (err)
          {
             if (error)
             {
-               throw new Error(`'${dataName}.${accessor}': '${dataEntry}' failed to validate: ${err.message}.`);
+               throw _validateError(Error, `'${dataName}.${accessor}': '${dataEntry}' failed to validate: ${
+                err.message}.`);
             }
             else
             {
@@ -510,6 +512,24 @@ export function onPluginLoad(ev)
 }
 
 // Module private ---------------------------------------------------------------------------------------------------
+
+/**
+ * Creates a new error of type `clazz` adding the field `_objectValidateError` set to true.
+ *
+ * @param {Error}    clazz - Error class to instantiate.
+ *
+ * @param {string}   message - An error message.
+ *
+ * @returns {*}
+ * @ignore
+ * @private
+ */
+function _validateError(clazz, message = void 0)
+{
+   const error = new clazz(message);
+   error._objectValidateError = true;
+   return error;
+}
 
 /**
  * Private implementation of depth traversal.
