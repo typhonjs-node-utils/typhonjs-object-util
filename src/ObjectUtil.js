@@ -291,8 +291,11 @@ export default class ObjectUtil
             {
                if (error)
                {
+                  const dataEntryString = typeof dataArray[cntr] === 'object' ? JSON.stringify(dataArray[cntr]) :
+                   dataArray[cntr];
+
                   throw _validateError(TypeError,
-                   `'${dataName}.${accessor}[${cntr}]': '${dataArray[cntr]}' is not a '${type}'.`);
+                   `'${dataName}.${accessor}[${cntr}]': '${dataEntryString}' is not a '${type}'.`);
                }
                else
                {
@@ -313,8 +316,11 @@ export default class ObjectUtil
             {
                if (error)
                {
+                  const dataEntryString = typeof dataArray[cntr] === 'object' ? JSON.stringify(dataArray[cntr]) :
+                   dataArray[cntr];
+
                   throw _validateError(Error, `'${dataName}.${accessor}[${cntr}]': '${
-                   dataArray[cntr]}' is not an expected value: ${JSON.stringify(expected)}.`);
+                   dataEntryString}' is not an expected value: ${JSON.stringify(expected)}.`);
                }
                else
                {
@@ -331,8 +337,11 @@ export default class ObjectUtil
             {
                if (error)
                {
+                  const dataEntryString = typeof dataArray[cntr] === 'object' ? JSON.stringify(dataArray[cntr]) :
+                   dataArray[cntr];
+
                   throw _validateError(Error, `'${dataName}.${accessor}[${cntr}]': '${
-                   dataArray[cntr]}' is not an expected value: ${JSON.stringify(expected)}.`);
+                   dataEntryString}' is not an expected value: ${JSON.stringify(expected)}.`);
                }
                else
                {
@@ -349,14 +358,17 @@ export default class ObjectUtil
             {
                const result = expected(dataArray[cntr]);
 
-               if (typeof result === 'undefined' || !result) { throw _validateError(Error, message); }
+               if (typeof result === 'undefined' || !result) { throw new Error(message); }
             }
             catch (err)
             {
                if (error)
                {
+                  const dataEntryString = typeof dataArray[cntr] === 'object' ? JSON.stringify(dataArray[cntr]) :
+                   dataArray[cntr];
+
                   throw _validateError(Error, `'${dataName}.${accessor}[${cntr}]': '${
-                   dataArray[cntr]}' failed validation: ${err.message}.`);
+                   dataEntryString}' failed validation: ${err.message}.`);
                }
                else
                {
@@ -414,7 +426,9 @@ export default class ObjectUtil
       {
          if (error)
          {
-            throw _validateError(Error, `'${dataName}.${accessor}': '${dataEntry}' is not an expected value: ${
+            const dataEntryString = typeof dataEntry === 'object' ? JSON.stringify(dataEntry) : dataEntry;
+
+            throw _validateError(Error, `'${dataName}.${accessor}': '${dataEntryString}' is not an expected value: ${
              JSON.stringify(expected)}.`);
          }
          else
@@ -428,13 +442,15 @@ export default class ObjectUtil
          {
             const result = expected(dataEntry);
 
-            if (typeof result === 'undefined' || !result) { throw _validateError(Error, message); }
+            if (typeof result === 'undefined' || !result) { throw new Error(message); }
          }
          catch (err)
          {
             if (error)
             {
-               throw _validateError(Error, `'${dataName}.${accessor}': '${dataEntry}' failed to validate: ${
+               const dataEntryString = typeof dataEntry === 'object' ? JSON.stringify(dataEntry) : dataEntry;
+
+               throw _validateError(Error, `'${dataName}.${accessor}': '${dataEntryString}' failed to validate: ${
                 err.message}.`);
             }
             else
