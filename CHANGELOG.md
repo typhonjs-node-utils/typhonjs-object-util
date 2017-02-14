@@ -1,3 +1,6 @@
+## 0.4.0 (2017-14-02)
+- Added `safeBatchSet`
+
 ## 0.3.2 (2017-14-02)
 - Added more documentation.
 
