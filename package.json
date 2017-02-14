@@ -1,6 +1,6 @@
 {
   "name": "typhonjs-object-util",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Provides common object manipulation utilities.",
   "author": "typhonrt",
   "homepage": "https://github.com/typhonjs-node-utils/typhonjs-object-util",
