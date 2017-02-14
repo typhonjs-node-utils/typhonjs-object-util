@@ -120,9 +120,12 @@ export default class ObjectUtil
     * @param {string}   [operation='set'] - Operation to perform including: 'add', 'div', 'mult', 'set', 'sub';
     *                                       default (`set`).
     *
+    * @param {boolean}  [createMissing=true] - If true missing accessor entries will be created as objects
+    *                                          automatically.
+    *
     * @returns {boolean} True if successful.
     */
-   static safeSet(data, accessor, value, operation = 'set')
+   static safeSet(data, accessor, value, operation = 'set', createMissing = true)
    {
       if (typeof data !== 'object') { throw new TypeError(`safeSet Error: 'data' is not an 'object'.`); }
       if (typeof accessor !== 'string') { throw new TypeError(`safeSet Error: 'accessor' is not a 'string'.`); }
@@ -141,7 +144,17 @@ export default class ObjectUtil
          }
 
          // If the next level of object access is undefined then create a new object entry.
-         if (typeof data[access[cntr]] === 'undefined') { data[access[cntr]] = {}; }
+         if (typeof data[access[cntr]] === 'undefined')
+         {
+            if (createMissing)
+            {
+               data[access[cntr]] = {};
+            }
+            else
+            {
+               return false;
+            }
+         }
 
          if (cntr === access.length - 1)
          {
@@ -186,8 +199,14 @@ export default class ObjectUtil
     * @param {object}            data - The data object to set data.
     *
     * @param {object<string, *>} accessorValues - Object of accessor keys to values to set.
+    *
+    * @param {string}            [operation='set'] - Operation to perform including: 'add', 'div', 'mult', 'set', 'sub';
+    *                                                default (`set`).
+    *
+    * @param {boolean}           [createMissing=true] - If true missing accessor entries will be created as objects
+    *                                                   automatically.
     */
-   static safeSetAll(data, accessorValues)
+   static safeSetAll(data, accessorValues, operation = 'set', createMissing = true)
    {
       if (typeof data !== 'object') { throw new TypeError(`'data' is not an 'object'.`); }
       if (typeof accessorValues !== 'object') { throw new TypeError(`'accessorValues' is not an 'object'.`); }
@@ -196,7 +215,7 @@ export default class ObjectUtil
       {
          if (!accessorValues.hasOwnProperty(accessor)) { continue; }
 
-         ObjectUtil.safeSet(data, accessor, accessorValues[accessor]);
+         ObjectUtil.safeSet(data, accessor, accessorValues[accessor], operation, createMissing);
       }
    }
 
