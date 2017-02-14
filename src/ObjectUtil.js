@@ -14,9 +14,12 @@ export default class ObjectUtil
     *
     * @param {function}       func - A callback function to process leaf values in children arrays or object members.
     *
+    * @param {boolean}        modify - If true then the result of the callback function is used to modify in place
+    *                                  the given data.
+    *
     * @returns {*}
     */
-   static depthTraverse(data, func)
+   static depthTraverse(data, func, modify = false)
    {
       /* istanbul ignore if */
       if (typeof data !== 'object') { throw new TypeError('depthTraverse error: \'data\' is not an \'object\'.'); }
@@ -24,7 +27,7 @@ export default class ObjectUtil
       /* istanbul ignore if */
       if (typeof func !== 'function') { throw new TypeError('depthTraverse error: \'func\' is not a \'function\'.'); }
 
-      return _depthTraverse(data, func);
+      return _depthTraverse(data, func, modify);
    }
 
    /**
@@ -74,6 +77,50 @@ export default class ObjectUtil
    }
 
    /**
+    * Provides a way to safely batch set an objects data / entries given an array of accessor strings which describe the
+    * entries to walk. To access deeper entries into the object format the accessor string with `.` between entries
+    * to walk. If value is an object the accessor will be used to access a target value from `value` which is
+    * subsequently set to `data` by the given operation. If `value` is not an object it will be used as the target
+    * value to set across all accessors.
+    *
+    * @param {object}         data - An object to access entry data.
+    *
+    * @param {Array<string>}  accessors - A string describing the entries to access.
+    *
+    * @param {object|*}       value - A new value to set if an entry for accessor is found.
+    *
+    * @param {string}         [operation='set'] - Operation to perform including: 'add', 'div', 'mult', 'set',
+    *                                             'set-undefined', 'sub'.
+    *
+    * @param {object|*}       [defaultAccessValue=0] - A new value to set if an entry for accessor is found.
+    *
+    *
+    * @param {boolean}  [createMissing=true] - If true missing accessor entries will be created as objects
+    *                                          automatically.
+    */
+   static safeBatchSet(data, accessors, value, operation = 'set', defaultAccessValue = 0, createMissing = true)
+   {
+      if (typeof data !== 'object') { throw new TypeError(`safeBatchSet Error: 'data' is not an 'object'.`); }
+      if (!Array.isArray(accessors)) { throw new TypeError(`safeBatchSet Error: 'accessors' is not an 'array'.`); }
+
+      if (typeof value === 'object')
+      {
+         accessors.forEach((accessor) =>
+         {
+            const targetValue = ObjectUtil.safeAccess(value, accessor, defaultAccessValue);
+            ObjectUtil.safeSet(data, accessor, targetValue, operation, createMissing);
+         });
+      }
+      else
+      {
+         accessors.forEach((accessor) =>
+         {
+            ObjectUtil.safeSet(data, accessor, value, operation, createMissing);
+         });
+      }
+   }
+
+   /**
     * Compares a source object and values of entries against a target object. If the entries in the source object match
     * the target object then `true` is returned otherwise `false`. If either object is undefined or null then false
     * is returned.
@@ -117,8 +164,8 @@ export default class ObjectUtil
     *
     * @param {*}        value - A new value to set if an entry for accessor is found.
     *
-    * @param {string}   [operation='set'] - Operation to perform including: 'add', 'div', 'mult', 'set', 'sub';
-    *                                       default (`set`).
+    * @param {string}   [operation='set'] - Operation to perform including: 'add', 'div', 'mult', 'set',
+    *                                       'set-undefined', 'sub'.
     *
     * @param {boolean}  [createMissing=true] - If true missing accessor entries will be created as objects
     *                                          automatically.
@@ -143,19 +190,6 @@ export default class ObjectUtil
             if (!Number.isInteger(number) || number < 0) { return false; }
          }
 
-         // If the next level of object access is undefined then create a new object entry.
-         if (typeof data[access[cntr]] === 'undefined')
-         {
-            if (createMissing)
-            {
-               data[access[cntr]] = {};
-            }
-            else
-            {
-               return false;
-            }
-         }
-
          if (cntr === access.length - 1)
          {
             switch (operation)
@@ -176,6 +210,10 @@ export default class ObjectUtil
                   data[access[cntr]] = value;
                   break;
 
+               case 'set-undefined':
+                  if (typeof data[access[cntr]] === 'undefined') { data[access[cntr]] = value; }
+                  break;
+
                case 'sub':
                   data[access[cntr]] -= value;
                   break;
@@ -183,6 +221,9 @@ export default class ObjectUtil
          }
          else
          {
+            // If createMissing is true and the next level of object access is undefined then create a new object entry.
+            if (createMissing && typeof data[access[cntr]] === 'undefined') { data[access[cntr]] = {}; }
+
             // Abort if the next level is null or not an object and containing a value.
             if (data[access[cntr]] === null || typeof data[access[cntr]] !== 'object') { return false; }
 
@@ -541,6 +582,7 @@ export function onPluginLoad(ev)
    eventbus.on('typhonjs:object:util:depth:traverse', ObjectUtil.depthTraverse, ObjectUtil);
    eventbus.on('typhonjs:object:util:get:accessor:list', ObjectUtil.getAccessorList, ObjectUtil);
    eventbus.on('typhonjs:object:util:safe:access', ObjectUtil.safeAccess, ObjectUtil);
+   eventbus.on('typhonjs:object:util:safe:batch:set', ObjectUtil.safeBatchSet, ObjectUtil);
    eventbus.on('typhonjs:object:util:safe:equal', ObjectUtil.safeEqual, ObjectUtil);
    eventbus.on('typhonjs:object:util:safe:set', ObjectUtil.safeSet, ObjectUtil);
    eventbus.on('typhonjs:object:util:safe:set:all', ObjectUtil.safeSetAll, ObjectUtil);
@@ -577,23 +619,52 @@ function _validateError(clazz, message = void 0)
  *
  * @param {function}       func - A callback function to process leaf values in children arrays or object members.
  *
+ * @param {boolean}        modify - If true then the result of the callback function is used to modify in place
+ *                                  the given data.
+ * @returns {*}
  * @ignore
  * @private
  */
-function _depthTraverse(data, func)
+function _depthTraverse(data, func, modify)
 {
-   if (Array.isArray(data))
+   if (modify)
    {
-      for (let cntr = 0; cntr < data.length; cntr++) { _depthTraverse(data[cntr], func); }
-   }
-   else if (typeof data === 'object')
-   {
-      for (const key in data) { if (data.hasOwnProperty(key)) { _depthTraverse(data[key], func); } }
+      if (Array.isArray(data))
+      {
+         for (let cntr = 0; cntr < data.length; cntr++)
+         {
+            data[cntr] = _depthTraverse(data[cntr], func, modify);
+         }
+      }
+      else if (typeof data === 'object')
+      {
+         for (const key in data)
+         {
+            if (data.hasOwnProperty(key)) { data[key] = _depthTraverse(data[key], func, modify); }
+         }
+      }
+      else
+      {
+         data = func(data);
+      }
    }
    else
    {
-      func(data);
+      if (Array.isArray(data))
+      {
+         for (let cntr = 0; cntr < data.length; cntr++) { _depthTraverse(data[cntr], func, modify); }
+      }
+      else if (typeof data === 'object')
+      {
+         for (const key in data) { if (data.hasOwnProperty(key)) { _depthTraverse(data[key], func, modify); } }
+      }
+      else
+      {
+         func(data);
+      }
    }
+
+   return data;
 }
 
 /**
