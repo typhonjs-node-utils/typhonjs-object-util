@@ -4,18 +4,21 @@ import ObjectUtil from '../../src/ObjectUtil.js';
 
 const s_OBJECT_DEEP =
 {
+   skipFreeze: { s1: ['a'] },
    a: { a1: [{ e1: 1 }] },
    b: { b1: 2 },
    c: [{ c1: 3 }],
    array: [[{ ae1: 'a' }], [{ ae2: 'b' }], [{ ae3: 'c' }]],
    level1:
    {
+      skipFreeze: { s2: ['b'] },
       d: { d1: [{ e1: 4 }] },
       e: { e1: 5 },
       f: [{ f1: 6 }],
       array1: [[{ ae1: 'd' }], [{ ae2: 'e' }], [{ ae3: 'f' }]],
       level2:
       {
+         skipFreeze: { s3: ['c'] },
          g: { g1: [{ e1: 7 }] },
          h: { h1: 8 },
          i: [{ i1: 9 }],
@@ -87,8 +90,17 @@ describe('ObjectUtil:', () =>
 {
    it('deepFreeze:', () =>
    {
-      ObjectUtil.deepFreeze(s_OBJECT_DEEP);
+      ObjectUtil.deepFreeze(s_OBJECT_DEEP, ['skipFreeze']);
 
+      // Verify not frozen
+      assert.isFalse(Object.isFrozen(s_OBJECT_DEEP.skipFreeze));
+      assert.isFalse(Object.isFrozen(s_OBJECT_DEEP.skipFreeze.s1));
+      assert.isFalse(Object.isFrozen(s_OBJECT_DEEP.level1.skipFreeze));
+      assert.isFalse(Object.isFrozen(s_OBJECT_DEEP.level1.skipFreeze.s2));
+      assert.isFalse(Object.isFrozen(s_OBJECT_DEEP.level1.level2.skipFreeze));
+      assert.isFalse(Object.isFrozen(s_OBJECT_DEEP.level1.level2.skipFreeze.s3));
+
+      // Verify frozen
       assert.isTrue(Object.isFrozen(s_OBJECT_DEEP));
 
       assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.a));

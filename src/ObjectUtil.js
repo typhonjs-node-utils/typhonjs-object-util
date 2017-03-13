@@ -11,14 +11,19 @@ export default class ObjectUtil
     *
     * @param {object|Array}   data - An object or array.
     *
+    * @param {string[]}       skipFreezeKeys - An array of strings indicating keys of objects to not freeze.
+    *
     * @returns {object|Array}
     */
-   static deepFreeze(data)
+   static deepFreeze(data, skipFreezeKeys = [])
    {
       /* istanbul ignore if */
-      if (typeof data !== 'object') { throw new TypeError('deepFreeze error: \'data\' is not an \'object\'.'); }
+      if (typeof data !== 'object') { throw new TypeError(`'data' is not an 'object'.`); }
 
-      return _deepFreeze(data);
+      /* istanbul ignore if */
+      if (!Array.isArray(skipFreezeKeys)) { throw new TypeError(`'skipFreezeKeys' is not an 'array'.`); }
+
+      return _deepFreeze(data, skipFreezeKeys);
    }
 
    /**
@@ -37,10 +42,10 @@ export default class ObjectUtil
    static depthTraverse(data, func, modify = false)
    {
       /* istanbul ignore if */
-      if (typeof data !== 'object') { throw new TypeError('depthTraverse error: \'data\' is not an \'object\'.'); }
+      if (typeof data !== 'object') { throw new TypeError(`'data' is not an 'object'.`); }
 
       /* istanbul ignore if */
-      if (typeof func !== 'function') { throw new TypeError('depthTraverse error: \'func\' is not a \'function\'.'); }
+      if (typeof func !== 'function') { throw new TypeError(`'func' is not a 'function'.`); }
 
       return _depthTraverse(data, func, modify);
    }
@@ -618,19 +623,24 @@ export function onPluginLoad(ev)
  *
  * @param {object|Array}   data - An object or array.
  *
+ * @param {string[]}       skipFreezeKeys - An array of strings indicating keys of objects to not freeze.
+ *
  * @returns {*}
  * @ignore
  * @private
  */
-function _deepFreeze(data)
+function _deepFreeze(data, skipFreezeKeys)
 {
    if (Array.isArray(data))
    {
-      for (let cntr = 0; cntr < data.length; cntr++) { _deepFreeze(data[cntr]); }
+      for (let cntr = 0; cntr < data.length; cntr++) { _deepFreeze(data[cntr], skipFreezeKeys); }
    }
    else if (typeof data === 'object')
    {
-      for (const key in data) { if (data.hasOwnProperty(key)) { _deepFreeze(data[key]); } }
+      for (const key in data)
+      {
+         if (data.hasOwnProperty(key) && skipFreezeKeys.indexOf(key) === -1) { _deepFreeze(data[key], skipFreezeKeys); }
+      }
    }
 
    return Object.freeze(data);
