@@ -1,8 +1,11 @@
+## 0.4.2 (2017-03-13)
+- Added the ability to skip object keys in `deepFreeze`.
+
 ## 0.4.1 (2017-03-13)
-- Added `deepFreeze`
+- Added `deepFreeze`.
 
 ## 0.4.0 (2017-02-14)
-- Added `safeBatchSet`
+- Added `safeBatchSet`.
 
 ## 0.3.2 (2017-02-14)
 - Added more documentation.
@@ -17,4 +20,4 @@
 - For validation `expected` can also be an array.
 
 ## 0.1.0 (2017-02-11)
-- Initial release
+- Initial release.
