@@ -7,6 +7,24 @@
 export default class ObjectUtil
 {
    /**
+    * Freezes all entries traversed that are objects.
+    *
+    * @param {object}   data - Object to traverse.
+    */
+   static deepFreeze(data)
+   {
+      /* istanbul ignore if */
+      if (typeof data !== 'object') { throw new TypeError('deepFreeze error: \'data\' is not an \'object\'.'); }
+
+      ObjectUtil.depthTraverse(data, (entry) =>
+      {
+         if (typeof entry === 'object') { Object.freeze(entry); }
+      });
+
+      Object.freeze(data);
+   }
+
+   /**
     * Performs a naive depth traversal of an object / array. The data structure _must not_ have circular references.
     * The result of the callback function is used to modify in place the given data.
     *
@@ -562,15 +580,18 @@ export default class ObjectUtil
 /**
  * Wires up ObjectUtil on the plugin eventbus. The following event bindings are available:
  *
+ * `typhonjs:object:util:deep:freeze`: Invokes `deepFreeze`.
  * `typhonjs:object:util:depth:traverse`: Invokes `depthTraverse`.
  * `typhonjs:object:util:get:accessor:list`: Invokes `getAccessorList`.
  * `typhonjs:object:util:safe:access`: Invokes `safeAccess`.
+ * `typhonjs:object:util:safe:batch:set`: Invokes `safeBatchSet`.
  * `typhonjs:object:util:safe:equal`: Invokes `safeEqual`.
  * `typhonjs:object:util:safe:set`: Invokes `safeSet`.
  * `typhonjs:object:util:safe:set:all`: Invokes `safeSetAll`.
  * `typhonjs:object:util:validate`: Invokes `validate`.
  * `typhonjs:object:util:validate:array`: Invokes `validateArray`.
  * `typhonjs:object:util:validate:entry`: Invokes `validateEntry`.
+ * `typhonjs:object:util:validate:entry|array`: Invokes `validateEntryOrArray`.
  *
  * @param {PluginEvent} ev - The plugin event.
  * @ignore
@@ -579,6 +600,7 @@ export function onPluginLoad(ev)
 {
    const eventbus = ev.eventbus;
 
+   eventbus.on('typhonjs:object:util:deep:freeze', ObjectUtil.deepFreeze, ObjectUtil);
    eventbus.on('typhonjs:object:util:depth:traverse', ObjectUtil.depthTraverse, ObjectUtil);
    eventbus.on('typhonjs:object:util:get:accessor:list', ObjectUtil.getAccessorList, ObjectUtil);
    eventbus.on('typhonjs:object:util:safe:access', ObjectUtil.safeAccess, ObjectUtil);
