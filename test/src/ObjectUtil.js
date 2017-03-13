@@ -2,6 +2,28 @@ import { assert } from 'chai';
 
 import ObjectUtil from '../../src/ObjectUtil.js';
 
+const s_OBJECT_DEEP =
+{
+   a: { a1: [{ e1: 1 }] },
+   b: { b1: 2 },
+   c: [{ c1: 3 }],
+   array: [[{ ae1: 'a' }], [{ ae2: 'b' }], [{ ae3: 'c' }]],
+   level1:
+   {
+      d: { d1: [{ e1: 4 }] },
+      e: { e1: 5 },
+      f: [{ f1: 6 }],
+      array1: [[{ ae1: 'd' }], [{ ae2: 'e' }], [{ ae3: 'f' }]],
+      level2:
+      {
+         g: { g1: [{ e1: 7 }] },
+         h: { h1: 8 },
+         i: [{ i1: 9 }],
+         array2: [[{ ae1: 'g' }], [{ ae2: 'h' }], [{ ae3: 'i' }]]
+      }
+   }
+};
+
 const s_OBJECT_MIXED =
 {
    a: 1,
@@ -63,6 +85,79 @@ const s_VERIFY_SAFESET_SUB = `{"a":0,"b":0,"c":0,"array":[0,0,0],"level1":{"d":0
 
 describe('ObjectUtil:', () =>
 {
+   it('deepFreeze:', () =>
+   {
+      ObjectUtil.deepFreeze(s_OBJECT_DEEP);
+
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP));
+
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.a));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.a.a1));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.a.a1[0]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.b));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.c));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.c[0]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.array));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.array[0]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.array[0][0]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.array[1]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.array[1][0]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.array[2]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.array[2][0]));
+
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.d));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.d.d1));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.d.d1[0]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.e));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.f));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.f[0]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.array1));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.array1[0]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.array1[0][0]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.array1[1]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.array1[1][0]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.array1[2]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.array1[2][0]));
+
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.level2));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.level2.g));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.level2.g.g1));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.level2.g.g1[0]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.level2.h));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.level2.i));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.level2.i[0]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.level2.array2));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.level2.array2[0]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.level2.array2[0][0]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.level2.array2[1]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.level2.array2[1][0]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.level2.array2[2]));
+      assert.isTrue(Object.isFrozen(s_OBJECT_DEEP.level1.level2.array2[2][0]));
+
+      // Make sure pushing to arrays fails.
+      assert.throws(() => { s_OBJECT_DEEP.a.a1.push(1); });
+      assert.throws(() => { s_OBJECT_DEEP.c.push(1); });
+      assert.throws(() => { s_OBJECT_DEEP.array.push(1); });
+      assert.throws(() => { s_OBJECT_DEEP.array[0].push(1); });
+      assert.throws(() => { s_OBJECT_DEEP.array[1].push(1); });
+      assert.throws(() => { s_OBJECT_DEEP.array[2].push(1); });
+
+      assert.throws(() => { s_OBJECT_DEEP.level1.d.d1.push(1); });
+      assert.throws(() => { s_OBJECT_DEEP.level1.f.push(1); });
+      assert.throws(() => { s_OBJECT_DEEP.level1.array1.push(1); });
+      assert.throws(() => { s_OBJECT_DEEP.level1.array1[0].push(1); });
+      assert.throws(() => { s_OBJECT_DEEP.level1.array1[1].push(1); });
+      assert.throws(() => { s_OBJECT_DEEP.level1.array1[2].push(1); });
+
+      assert.throws(() => { s_OBJECT_DEEP.level1.level2.g.g1.push(1); });
+      assert.throws(() => { s_OBJECT_DEEP.level1.level2.i.push(1); });
+      assert.throws(() => { s_OBJECT_DEEP.level1.level2.array2.push(1); });
+      assert.throws(() => { s_OBJECT_DEEP.level1.level2.array2[0].push(1); });
+      assert.throws(() => { s_OBJECT_DEEP.level1.level2.array2[1].push(1); });
+      assert.throws(() => { s_OBJECT_DEEP.level1.level2.array2[2].push(1); });
+   });
+
    it('depthTraverse:', () =>
    {
       const output = [];

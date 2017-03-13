@@ -7,21 +7,18 @@
 export default class ObjectUtil
 {
    /**
-    * Freezes all entries traversed that are objects.
+    * Freezes all entries traversed that are objects including entries in arrays.
     *
-    * @param {object}   data - Object to traverse.
+    * @param {object|Array}   data - An object or array.
+    *
+    * @returns {object|Array}
     */
    static deepFreeze(data)
    {
       /* istanbul ignore if */
       if (typeof data !== 'object') { throw new TypeError('deepFreeze error: \'data\' is not an \'object\'.'); }
 
-      ObjectUtil.depthTraverse(data, (entry) =>
-      {
-         if (typeof entry === 'object') { Object.freeze(entry); }
-      });
-
-      Object.freeze(data);
+      return _deepFreeze(data);
    }
 
    /**
@@ -617,21 +614,26 @@ export function onPluginLoad(ev)
 // Module private ---------------------------------------------------------------------------------------------------
 
 /**
- * Creates a new error of type `clazz` adding the field `_objectValidateError` set to true.
+ * Private implementation of depth traversal.
  *
- * @param {Error}    clazz - Error class to instantiate.
- *
- * @param {string}   message - An error message.
+ * @param {object|Array}   data - An object or array.
  *
  * @returns {*}
  * @ignore
  * @private
  */
-function _validateError(clazz, message = void 0)
+function _deepFreeze(data)
 {
-   const error = new clazz(message);
-   error._objectValidateError = true;
-   return error;
+   if (Array.isArray(data))
+   {
+      for (let cntr = 0; cntr < data.length; cntr++) { _deepFreeze(data[cntr]); }
+   }
+   else if (typeof data === 'object')
+   {
+      for (const key in data) { if (data.hasOwnProperty(key)) { _deepFreeze(data[key]); } }
+   }
+
+   return Object.freeze(data);
 }
 
 /**
@@ -723,4 +725,22 @@ function _getAccessorList(data)
    }
 
    return accessors;
+}
+
+/**
+ * Creates a new error of type `clazz` adding the field `_objectValidateError` set to true.
+ *
+ * @param {Error}    clazz - Error class to instantiate.
+ *
+ * @param {string}   message - An error message.
+ *
+ * @returns {*}
+ * @ignore
+ * @private
+ */
+function _validateError(clazz, message = void 0)
+{
+   const error = new clazz(message);
+   error._objectValidateError = true;
+   return error;
 }
